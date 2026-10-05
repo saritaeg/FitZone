@@ -11,13 +11,21 @@ public class Plan {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
+    public enum TipoPlan{
+        BASICO,
+        PREMIUM
+    }
+
     @Column( length = 50, nullable = false)
     private String nombre;
 
     @Column(name="precio_mensual", length =20, nullable = false)
     private String precioMensual;
 
-    @Column
+    @Enumerated(EnumType.STRING)
+    @Column(name="tipo", length = 50, nullable = false)
+    private TipoPlan tipo;
+
 
 
 
