@@ -32,5 +32,5 @@ public class Actividad {
     @Column( name="aforo_max", nullable = false)
     private Integer aforoMax;
 
-    
+
 }
