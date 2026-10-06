@@ -6,9 +6,15 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.*;
 
 import java.time.LocalDateTime;
-
+@Getter
+@Setter
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
+@NoArgsConstructor
 @Entity
 @Table(name = "socio")
 public class Socio {
@@ -29,6 +35,8 @@ public class Socio {
 
     @Column (length=20, nullable = true)
     private String matricula;
+    @Column(length = 20, nullable = false)
+    private String telefono;
 
     @Column (length=150,nullable = false)
     private String email;
@@ -44,7 +52,8 @@ public class Socio {
     private EstadoSocio activo = EstadoSocio.ACTIVO;
 
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
+
 }

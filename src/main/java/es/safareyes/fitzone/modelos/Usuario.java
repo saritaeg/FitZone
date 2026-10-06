@@ -2,9 +2,15 @@ package es.safareyes.fitzone.modelos;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
+import lombok.*;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
-
+@Getter
+@Setter
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
+@NoArgsConstructor
 @Entity
 @Table(name = "usuario")
 public class Usuario {
@@ -16,10 +22,10 @@ public class Usuario {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @Column( name = "nom_contraseña",length = 100, nullable = false,unique = true)
+    @Column( name = "nom_contraseña",length = 100, nullable = false)
     private String nomContraseña;
 
-    @Column( length = 100, nullable = false, unique = true)
+    @Column( length = 100, nullable = false)
     private String contraseña;
 
     @Enumerated(EnumType.STRING)
@@ -28,11 +34,6 @@ public class Usuario {
 
     @OneToOne(mappedBy = "usuario")
     private Socio socio;
-
-    public Usuario() {
-    }
-
-
 
 
 }

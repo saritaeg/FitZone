@@ -4,8 +4,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
+import lombok.*;
+
 import static jakarta.persistence.GenerationType.IDENTITY;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
+@NoArgsConstructor
 @Entity
 @Table(name = "monitor")
 public class Monitor {
@@ -19,8 +27,6 @@ public class Monitor {
 
     @Column (length=150, nullable = false)
     private String apellidos;
-    public Monitor() {
-    }
 
     public Monitor(String nombre, String apellidos) {
         this.nombre = nombre;

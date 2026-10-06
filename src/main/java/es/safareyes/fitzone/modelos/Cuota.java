@@ -2,11 +2,17 @@ package es.safareyes.fitzone.modelos;
 
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
-
+@Getter
+@Setter
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
+@NoArgsConstructor
 @Entity
 @Table(name = "cuota")
 public class Cuota {
@@ -14,7 +20,7 @@ public class Cuota {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    public enum estadoCuota{
+    public enum EstadoCuota{
         PAGADO,
         PENDIENTE
     }
@@ -29,7 +35,7 @@ public class Cuota {
 
     @Enumerated(EnumType.STRING)
     @Column ( name="estado",length=20, nullable = false)
-    private estadoCuota estado;
+    private EstadoCuota estado;
 
     @Column(name = "fecha_pago")
     private LocalDateTime fechaPago;

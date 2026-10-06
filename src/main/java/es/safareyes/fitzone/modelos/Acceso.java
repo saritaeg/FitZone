@@ -1,11 +1,17 @@
 package es.safareyes.fitzone.modelos;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
-
+@Getter
+@Setter
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
+@NoArgsConstructor
 @Entity
 @Table(name = "acceso")
 public class Acceso {
@@ -23,7 +29,7 @@ public class Acceso {
         AFORO_COMPLETO
     }
     @Column(name = "fecha", nullable = false)
-    private LocalDateTime fechaPago;
+    private LocalDateTime fecha;
 
     @Column(name = "hora_entrada", length=20, nullable = false)
     private LocalDateTime horaEntrada;
@@ -45,5 +51,7 @@ public class Acceso {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_socio", nullable = false)
     private Socio socio;
+
+
 
 }

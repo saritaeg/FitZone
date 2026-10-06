@@ -1,9 +1,15 @@
 package es.safareyes.fitzone.modelos;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
-
+@Getter
+@Setter
+@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
+@NoArgsConstructor
 @Entity
 @Table(name="plan")
 public class Plan {
