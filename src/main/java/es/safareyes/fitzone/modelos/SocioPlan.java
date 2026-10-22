@@ -13,12 +13,9 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name="socio_plan")
 public class SocioPlan {
-
-
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_socio", nullable = false)
     private Socio socio;

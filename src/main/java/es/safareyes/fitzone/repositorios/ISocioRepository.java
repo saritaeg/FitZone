@@ -29,7 +29,7 @@ public interface ISocioRepository extends JpaRepository<Socio, Integer> {
     );
     @Query(
             value = "SELECT * FROM socio WHERE id = :id",
-            nativeQuery = true
+            nativeQuery = true 
     )
     Optional<Socio> buscarPorId(@Param("id") Integer id);
 
