@@ -73,7 +73,7 @@ public class FitZoneGetTest {
     @Test
     @DisplayName("GET 7: Consultar actividades y plazas libres por fecha")
     public void testBuscarActividadesPorFecha() {
-        assertNotNull(actividadRepository.buscarActividadesPorFecha(LocalDate.now()));
+        assertNotNull(actividadRepository.buscarActividadesPorFecha(LocalDate.of(2026, 11, 6)));
     }
 
     @Test

@@ -13,7 +13,7 @@ import java.util.List;
 public interface ICuotaRepository extends JpaRepository<Cuota, Integer> {
 
     @Query(
-            value = "SELECT * FROM cuota WHERE id_socio = :idSocio ORDER BY año DESC, mes DESC",
+            value = "SELECT * FROM cuota WHERE id_socio = :idSocio ORDER BY anio DESC, mes DESC",
             countQuery = "SELECT COUNT(*) FROM cuota WHERE id_socio = :idSocio",
             nativeQuery = true
     )
@@ -23,13 +23,13 @@ public interface ICuotaRepository extends JpaRepository<Cuota, Integer> {
     );
 
     @Query(
-            value = "SELECT c.id AS id, c.mes AS mes, c.año AS año, " +
+            value = "SELECT c.id AS id, c.mes AS mes, c.anio AS \"año\", " +
                     "c.importe AS importe, s.nombre AS nombre, " +
                     "s.apellidos AS apellidos, s.dni AS dni " +
                     "FROM cuota c " +
                     "JOIN socio s ON c.id_socio = s.id " +
                     "WHERE c.estado = 'PENDIENTE' " +
-                    "AND c.mes = :mes AND c.año = :anio",
+                    "AND c.mes = :mes AND c.anio = :anio",
             nativeQuery = true
     )
     List<CuotaPendienteDTO> buscarCuotasPendientes(
