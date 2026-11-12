@@ -1,21 +1,27 @@
+
 package es.safareyes.fitzone.controladores;
 
+import es.safareyes.fitzone.dto.AltaSocioDTO;
 import es.safareyes.fitzone.dto.SocioDTO;
 import es.safareyes.fitzone.servicios.SocioService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
-@RequestMapping("/api/socios")
+@RequestMapping("/api/v1/socios")
 @RequiredArgsConstructor
 public class SocioController {
 
     private final SocioService socioService;
 
-    // GET 1: Buscar socios con filtros
+    // GET 1: Buscar socios
     @GetMapping
     public Page<SocioDTO> buscarSocios(
             @RequestParam(required = false) String nombre,
@@ -24,20 +30,26 @@ public class SocioController {
             @RequestParam(defaultValue = "0") int pagina,
             @RequestParam(defaultValue = "10") int tamanio) {
 
-        return socioService.buscarSocios(
-                nombre,
-                apellidos,
-                activo,
-                PageRequest.of(pagina, tamanio)
-        );
+        return socioService.buscarSocios(nombre, apellidos, activo,
+                PageRequest.of(pagina, tamanio));
     }
 
     // GET 2: Buscar socio por ID
     @GetMapping("/{id}")
     public ResponseEntity<SocioDTO> buscarPorId(@PathVariable Integer id) {
 
-        return socioService.buscarPorId(id)
-                .map(ResponseEntity::ok)
+        Optional<SocioDTO> socio = socioService.buscarPorId(id);
+
+        return socio.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    // POST 1: Dar de alta un socio
+    @PostMapping
+    public ResponseEntity<SocioDTO> crearSocio(@RequestBody AltaSocioDTO datos) {
+
+        SocioDTO socio = socioService.crearSocio(datos);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(socio);
     }
 }

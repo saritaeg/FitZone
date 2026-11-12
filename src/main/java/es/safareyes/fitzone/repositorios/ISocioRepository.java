@@ -32,5 +32,8 @@ public interface ISocioRepository extends JpaRepository<Socio, Integer> {
             nativeQuery = true 
     )
     Optional<Socio> buscarPorId(@Param("id") Integer id);
+    boolean existsByDni(String dni);
+
+    boolean existsByEmail(String email);
 
 }
