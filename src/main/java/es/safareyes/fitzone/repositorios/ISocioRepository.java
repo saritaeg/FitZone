@@ -4,8 +4,10 @@ import es.safareyes.fitzone.modelos.Socio;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
 import java.util.Optional;
 
 public interface ISocioRepository extends JpaRepository<Socio, Integer> {
@@ -27,13 +29,28 @@ public interface ISocioRepository extends JpaRepository<Socio, Integer> {
             @Param("activo") String activo,
             Pageable pageable
     );
+
     @Query(
             value = "SELECT * FROM socio WHERE id = :id",
-            nativeQuery = true 
+            nativeQuery = true
     )
     Optional<Socio> buscarPorId(@Param("id") Integer id);
+
     boolean existsByDni(String dni);
 
     boolean existsByEmail(String email);
 
+    // Inactivar socios con dos o más cuotas pendientes
+    @Modifying
+    @Query(
+            value = "UPDATE socio SET activo = 'INACTIVO' " +
+                    "WHERE activo = 'ACTIVO' " +
+                    "AND id IN (" +
+                    "SELECT id_socio FROM cuota " +
+                    "WHERE estado = 'PENDIENTE' " +
+                    "GROUP BY id_socio " +
+                    "HAVING COUNT(*) >= 2)",
+            nativeQuery = true
+    )
+    int inactivarSociosConDosCuotasPendientes();
 }
