@@ -4,9 +4,10 @@ package es.safareyes.fitzone.controladores;
 import es.safareyes.fitzone.dto.AltaSocioDTO;
 import es.safareyes.fitzone.dto.SocioDTO;
 import es.safareyes.fitzone.servicios.SocioService;
-
+import es.safareyes.fitzone.dto.ActualizarSocioDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import es.safareyes.fitzone.dto.EstadoSocioDTO;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,5 +52,21 @@ public class SocioController {
         SocioDTO socio = socioService.crearSocio(datos);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(socio);
+    }
+    // PUT: Actualizar socio
+    @PutMapping("/{id}")
+    public SocioDTO actualizarSocio(
+            @PathVariable Integer id,
+            @RequestBody ActualizarSocioDTO datos) {
+
+        return socioService.actualizarSocio(id, datos);
+    }
+    // PATCH: Cambiar estado del socio
+    @PatchMapping("/{id}/estado")
+    public SocioDTO cambiarEstado(
+            @PathVariable Integer id,
+            @RequestBody EstadoSocioDTO datos) {
+
+        return socioService.cambiarEstado(id, datos);
     }
 }

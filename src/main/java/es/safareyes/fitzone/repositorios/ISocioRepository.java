@@ -39,6 +39,8 @@ public interface ISocioRepository extends JpaRepository<Socio, Integer> {
     boolean existsByDni(String dni);
 
     boolean existsByEmail(String email);
+    // Comprobar si otro socio ya utiliza ese email
+    boolean existsByEmailAndIdNot(String email, Integer id);
 
     // Inactivar socios con dos o más cuotas pendientes
     @Modifying
@@ -53,4 +55,6 @@ public interface ISocioRepository extends JpaRepository<Socio, Integer> {
             nativeQuery = true
     )
     int inactivarSociosConDosCuotasPendientes();
+    Optional<Socio> findByDni(String dni);
+
 }

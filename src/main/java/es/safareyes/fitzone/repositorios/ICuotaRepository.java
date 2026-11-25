@@ -39,4 +39,12 @@ public interface ICuotaRepository extends JpaRepository<Cuota, Integer> {
 
     // Comprobar si el socio ya tiene una cuota de ese mes y año
     boolean existsBySocio_IdAndMesAndAnio(Integer idSocio, Integer mes, Integer anio);
+    boolean existsBySocio_IdAndMesAndAnioAndEstado(
+            Integer idSocio,
+            Integer mes,
+            Integer anio,
+            Cuota.EstadoCuota estado
+    );
+
+
 }

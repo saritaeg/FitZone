@@ -5,11 +5,12 @@ import es.safareyes.fitzone.dto.AltaSocioDTO;
 import es.safareyes.fitzone.dto.SocioDTO;
 import es.safareyes.fitzone.modelos.Plan;
 import es.safareyes.fitzone.modelos.Socio;
+import es.safareyes.fitzone.dto.EstadoSocioDTO;
 import es.safareyes.fitzone.modelos.SocioPlan;
 import es.safareyes.fitzone.repositorios.ISocioRepository;
 import es.safareyes.fitzone.repositorios.ISocioPlanRepository;
 import es.safareyes.fitzone.repositorios.IPlanRepository;
-
+import es.safareyes.fitzone.dto.ActualizarSocioDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -111,6 +112,125 @@ public class SocioService {
         return convertirADTO(socio);
     }
 
+    // PUT: Actualizar los datos de un socio
+    @Transactional
+    public SocioDTO actualizarSocio(Integer id, ActualizarSocioDTO datos) {
+
+        // 1. Buscar socio
+        Socio socio = socioRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "No existe ese socio"
+                ));
+
+        // 2. Comprobar que el email no pertenece a otro socio
+        if (socioRepository.existsByEmailAndIdNot(datos.getEmail(), id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Ese email ya está siendo utilizado"
+            );
+        }
+
+        // 3. Comprobar el formato de la matrícula
+        String matricula = datos.getMatricula();
+
+        if (matricula != null && !matricula.trim().isEmpty()) {
+            matricula = matricula.toUpperCase();
+
+            if (!matricula.matches("[0-9]{4}[BCDFGHJKLMNPRSTVWXYZ]{3}")) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "La matrícula no tiene un formato válido"
+                );
+            }
+        } else {
+            matricula = null;
+        }
+
+        // 4. Actualizar datos de contacto y matrícula
+        socio.setTelefono(datos.getTelefono());
+        socio.setEmail(datos.getEmail());
+        socio.setMatricula(matricula);
+
+        socioRepository.save(socio);
+
+        // 5. Buscar el nuevo plan
+        Plan nuevoPlan = planRepository.findById(datos.getIdPlan())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "No existe ese plan"
+                ));
+
+        // 6. Buscar el plan actual
+        Optional<SocioPlan> planActual = socioPlanRepository
+                .findFirstBySocio_IdAndFechaFinIsNullOrderByFechaInicioDesc(id);
+
+        if (planActual.isEmpty()) {
+            // Si no tiene plan actual, crear la asignación
+            SocioPlan nuevaAsignacion = new SocioPlan();
+            nuevaAsignacion.setSocio(socio);
+            nuevaAsignacion.setPlan(nuevoPlan);
+            nuevaAsignacion.setFechaInicio(LocalDate.now());
+            nuevaAsignacion.setFechaFin(null);
+
+            socioPlanRepository.save(nuevaAsignacion);
+
+        } else if (!planActual.get().getPlan().getId().equals(nuevoPlan.getId())) {
+
+            SocioPlan anterior = planActual.get();
+
+            // Si el plan empezó hoy, modificamos esa asignación
+            if (anterior.getFechaInicio().equals(LocalDate.now())) {
+                anterior.setPlan(nuevoPlan);
+                socioPlanRepository.save(anterior);
+
+            } else {
+                // Finalizar el plan anterior
+                anterior.setFechaFin(LocalDate.now().minusDays(1));
+                socioPlanRepository.save(anterior);
+
+                // Crear la nueva asignación
+                SocioPlan nuevaAsignacion = new SocioPlan();
+                nuevaAsignacion.setSocio(socio);
+                nuevaAsignacion.setPlan(nuevoPlan);
+                nuevaAsignacion.setFechaInicio(LocalDate.now());
+                nuevaAsignacion.setFechaFin(null);
+
+                socioPlanRepository.save(nuevaAsignacion);
+            }
+        }
+
+        return convertirADTO(socio);
+    }
+    // PATCH: Cambiar estado de un socio
+    public SocioDTO cambiarEstado(Integer id, EstadoSocioDTO datos) {
+
+        // 1. Buscar socio
+        Socio socio = socioRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "No existe ese socio"
+                ));
+
+        // 2. Comprobar el estado recibido
+        if (!datos.getActivo().equalsIgnoreCase("ACTIVO")
+                && !datos.getActivo().equalsIgnoreCase("INACTIVO")) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "El estado debe ser ACTIVO o INACTIVO"
+            );
+        }
+
+        // 3. Cambiar estado
+        socio.setActivo(Socio.EstadoSocio.valueOf(
+                datos.getActivo().toUpperCase()
+        ));
+
+        socioRepository.save(socio);
+
+        return convertirADTO(socio);
+    }
     // Convertir socio a DTO
     private SocioDTO convertirADTO(Socio socio) {
         return new SocioDTO(
