@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
 
@@ -75,7 +76,18 @@ public class FitZoneGetTest {
     public void testBuscarActividadesPorFecha() {
         assertNotNull(actividadRepository.buscarActividadesPorFecha(LocalDate.of(2026, 11, 6)));
     }
+    @Test
+    void generarPassword() {
 
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        String hash = encoder.encode("password");
+
+        System.out.println("HASH GENERADO: " + hash);
+
+        System.out.println("COMPROBACION: " +
+                encoder.matches("password", hash));
+    }
     @Test
     @DisplayName("GET 8: Consultar ingresos por año y plan")
     public void testBuscarIngresosPorAnio() {

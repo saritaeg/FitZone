@@ -1,4 +1,4 @@
-package es.safareyes.fitzone.configuracion;
+package es.safareyes.fitzone.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
