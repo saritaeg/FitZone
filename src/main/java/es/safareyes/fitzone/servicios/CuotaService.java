@@ -4,6 +4,8 @@ import es.safareyes.fitzone.dto.CuotaDTO;
 import es.safareyes.fitzone.dto.CuotaPendienteDTO;
 import es.safareyes.fitzone.dto.GeneracionCuotasDTO;
 import es.safareyes.fitzone.modelos.Cuota;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import es.safareyes.fitzone.modelos.Socio;
 import es.safareyes.fitzone.modelos.SocioPlan;
 import es.safareyes.fitzone.repositorios.ICuotaRepository;
@@ -29,9 +31,33 @@ public class CuotaService {
     private final ICuotaRepository cuotaRepository;
     private final ISocioRepository socioRepository;
     private final ISocioPlanRepository socioPlanRepository;
-
     // GET 4: Buscar cuotas de un socio
     public Page<CuotaDTO> buscarCuotasPorSocio(Integer idSocio, Pageable pageable) {
+
+        // Obtener el usuario que ha iniciado sesión
+        Authentication autenticacion = SecurityContextHolder.getContext().getAuthentication();
+
+        // Comprobar si tiene el rol SOCIO
+        boolean esSocio = autenticacion.getAuthorities().stream()
+                .anyMatch(autoridad -> autoridad.getAuthority().equals("ROLE_SOCIO"));
+
+        if (esSocio) {
+
+            // Buscar el socio asociado a su cuenta
+            Socio socioActual = socioRepository.buscarPorNombreUsuario(autenticacion.getName())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.FORBIDDEN,
+                            "No tienes permiso para consultar estas cuotas"
+                    ));
+
+            // Comprobar que está consultando sus propias cuotas
+            if (!socioActual.getId().equals(idSocio)) {
+                throw new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        "No puedes consultar las cuotas de otro socio"
+                );
+            }
+        }
 
         return cuotaRepository.buscarCuotasPorSocio(idSocio, pageable)
                 .map(this::convertirADTO);

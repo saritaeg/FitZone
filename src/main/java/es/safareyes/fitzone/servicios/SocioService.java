@@ -9,6 +9,8 @@ import es.safareyes.fitzone.dto.EstadoSocioDTO;
 import es.safareyes.fitzone.modelos.SocioPlan;
 import es.safareyes.fitzone.repositorios.ISocioRepository;
 import es.safareyes.fitzone.repositorios.ISocioPlanRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import es.safareyes.fitzone.repositorios.IPlanRepository;
 import es.safareyes.fitzone.dto.ActualizarSocioDTO;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +41,41 @@ public class SocioService {
 
     // GET 2: Buscar socio por ID
     public Optional<SocioDTO> buscarPorId(Integer id) {
-        return socioRepository.buscarPorId(id).map(this::convertirADTO);
+
+        // Buscar el socio solicitado
+        Optional<Socio> socioBuscado = socioRepository.buscarPorId(id);
+
+        // Si no existe, devolver vacío
+        if (socioBuscado.isEmpty()) {
+            return Optional.empty();
+        }
+
+        // Obtener el usuario que ha iniciado sesión
+        Authentication autenticacion = SecurityContextHolder.getContext().getAuthentication();
+
+        // Comprobar si el usuario tiene el rol SOCIO
+        boolean esSocio = autenticacion.getAuthorities().stream()
+                .anyMatch(autoridad -> autoridad.getAuthority().equals("ROLE_SOCIO"));
+
+        if (esSocio) {
+
+            // Buscar el socio asociado a su cuenta
+            Socio socioActual = socioRepository.buscarPorNombreUsuario(autenticacion.getName())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.FORBIDDEN,
+                            "No tienes permiso para consultar esta ficha"
+                    ));
+
+            // Comprobar que está consultando su propia ficha
+            if (!socioActual.getId().equals(id)) {
+                throw new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        "No puedes consultar la ficha de otro socio"
+                );
+            }
+        }
+
+        return socioBuscado.map(this::convertirADTO);
     }
 
     // POST 1: Dar de alta un socio

@@ -57,4 +57,10 @@ public interface ISocioRepository extends JpaRepository<Socio, Integer> {
     int inactivarSociosConDosCuotasPendientes();
     Optional<Socio> findByDni(String dni);
 
+    // Buscar el socio asociado a un usuario
+    @Query("SELECT s FROM Socio s WHERE s.usuario.nomContraseña = :nomContraseña")
+    Optional<Socio> buscarPorNombreUsuario(
+            @Param("nomContraseña") String nomContraseña
+    );
+
 }
